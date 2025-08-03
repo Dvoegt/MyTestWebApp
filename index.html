@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="RAAC Frontend Application"
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <title>RAAC Frontend</title>
+    <script>
+      const clientId = 'wvMU6drojg5h22JO';
+      const redirectUri = window.location.origin + '/callback.html';
+      const authorizationEndpoint = 'https://www.arcgis.com/sharing/rest/oauth2/authorize' +
+        '?client_id=' + clientId +
+        '&redirect_uri=' + window.encodeURIComponent(redirectUri) +
+        '&response_type=code' +
+        '&expiration=20160';
+      window.addEventListener('DOMContentLoaded', function() {
+        const signInButton = document.getElementById('sign-in-btn');
+        if (signInButton) {
+          signInButton.addEventListener('click', function() {
+            window.open(authorizationEndpoint, 'oauth-window', 'height=600,width=500');
+          });
+        }
+      });
+      // OAuth callback function
+      const oauthCallback = (authorizationCode) => {
+        const tokenEndpoint = 'https://www.arcgis.com/sharing/rest/oauth2/token';
+        fetch(tokenEndpoint, {
+          method: 'POST',
+          body: new URLSearchParams({
+            client_id: clientId,
+            grant_type: 'authorization_code',
+            code: authorizationCode,
+            redirect_uri: redirectUri
+          }),
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+          }
+        })
+        .then(response => response.json())
+        .then(newSession => {
+          updateSession(newSession);
+          // Redirect to AI Chatbot page after successful sign in
+          window.location.href = 'ai-chatbot.html';
+        })
+        .catch(err => {
+          alert('Failed to exchange code for token: ' + err);
+        });
+      };
+      window.oauthCallback = oauthCallback;
+      // Stub functions for session handling
+      function updateSession(session) {
+        console.log('Session updated:', session);
+      }
+    </script>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root">
+      <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+        <h1>RAAC Frontend</h1>
+        <p>Welcome to the RAAC Frontend Application</p>
+        <button id="sign-in-btn" style="margin: 20px; padding: 10px 20px; font-size: 16px; cursor: pointer;">Sign In</button>
+      </div>
+    </div>
+  </body>
+</html> 
